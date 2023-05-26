@@ -1,0 +1,43 @@
+[or-condo-c03:29681:0:29681] Caught signal 11 (Segmentation fault: address not mapped to object at address 0xdc0)
+==== backtrace (tid:  29681) ====
+ 0 0x000000000004d455 ucs_debug_print_backtrace()  ???:0
+ 1 0x0000000000c7fe50 LAMMPS_NS::Atom::add_molecule_atom()  /home/q8j/GIT/lammps/src/atom.cpp:2132
+ 2 0x0000000000eb5610 LAMMPS_NS::FixDeposit::pre_exchange()  /home/q8j/GIT/lammps/src/fix_deposit.cpp:562
+ 3 0x00000000004ebeb3 LAMMPS_NS::Modify::pre_exchange()  /home/q8j/GIT/lammps/src/modify.cpp:414
+ 4 0x000000000066a914 LAMMPS_NS::Verlet::run()  /home/q8j/GIT/lammps/src/verlet.cpp:273
+ 5 0x00000000005ceecf LAMMPS_NS::Run::command()  /home/q8j/GIT/lammps/src/run.cpp:176
+ 6 0x0000000000442cc4 LAMMPS_NS::Input::execute_command()  /home/q8j/GIT/lammps/src/input.cpp:853
+ 7 0x000000000043fccb LAMMPS_NS::Input::one()  /home/q8j/GIT/lammps/src/input.cpp:392
+ 8 0x0000000000443896 LAMMPS_NS::Input::ifthenelse()  /home/q8j/GIT/lammps/src/input.cpp:947
+ 9 0x0000000000441cd8 LAMMPS_NS::Input::execute_command()  /home/q8j/GIT/lammps/src/input.cpp:756
+10 0x000000000043fccb LAMMPS_NS::Input::one()  /home/q8j/GIT/lammps/src/input.cpp:392
+11 0x00000000005cf3a7 LAMMPS_NS::Run::command()  /home/q8j/GIT/lammps/src/run.cpp:231
+12 0x0000000000442cc4 LAMMPS_NS::Input::execute_command()  /home/q8j/GIT/lammps/src/input.cpp:853
+13 0x000000000043f69d LAMMPS_NS::Input::file()  /home/q8j/GIT/lammps/src/input.cpp:302
+14 0x0000000000417a55 main()  /home/q8j/GIT/lammps/src/main.cpp:105
+15 0x0000000000022555 __libc_start_main()  /usr/src/debug/glibc-2.17-c758a686/csu/../csu/libc-start.c:266
+16 0x0000000000417919 _start()  ???:0
+=================================
+[or-condo-c03:29681] *** Process received signal ***
+[or-condo-c03:29681] Signal: Segmentation fault (11)
+[or-condo-c03:29681] Signal code:  (-6)
+[or-condo-c03:29681] Failing at address: 0x51b2000073f1
+[or-condo-c03:29681] [ 0] /lib64/libpthread.so.0(+0xf630)[0x2b48b7b95630]
+[or-condo-c03:29681] [ 1] ./lmp[0xc7fe50]
+[or-condo-c03:29681] [ 2] ./lmp[0xeb5610]
+[or-condo-c03:29681] [ 3] ./lmp[0x4ebeb3]
+[or-condo-c03:29681] [ 4] ./lmp[0x66a914]
+[or-condo-c03:29681] [ 5] ./lmp[0x5ceecf]
+[or-condo-c03:29681] [ 6] ./lmp[0x442cc4]
+[or-condo-c03:29681] [ 7] ./lmp[0x43fccb]
+[or-condo-c03:29681] [ 8] ./lmp[0x443896]
+[or-condo-c03:29681] [ 9] ./lmp[0x441cd8]
+[or-condo-c03:29681] [10] ./lmp[0x43fccb]
+[or-condo-c03:29681] [11] ./lmp[0x5cf3a7]
+[or-condo-c03:29681] [12] ./lmp[0x442cc4]
+[or-condo-c03:29681] [13] ./lmp[0x43f69d]
+[or-condo-c03:29681] [14] ./lmp[0x417a55]
+[or-condo-c03:29681] [15] /lib64/libc.so.6(__libc_start_main+0xf5)[0x2b48bee0a555]
+[or-condo-c03:29681] [16] ./lmp[0x417919]
+[or-condo-c03:29681] *** End of error message ***
+/var/spool/slurmd.spool/job3932812/slurm_script: line 30: 29681 Segmentation fault      (core dumped) ./lmp -in run.in 2>&1 > out

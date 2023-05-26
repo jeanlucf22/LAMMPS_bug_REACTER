@@ -1,0 +1,605 @@
+LAMMPS (28 Mar 2023 - Development)
+  using 1 OpenMP thread(s) per MPI task
+units             real
+atom_style        full
+boundary          p p p
+timer off
+New timer settings: style=off  mode=nosync  timeout=off
+
+######################################
+# using OPLS force-field
+######################################
+special_bonds     lj/coul 0 0 0.5
+pair_style        lj/cut/coul/long 12.0 10.0
+bond_style        harmonic
+angle_style       harmonic
+dihedral_style    opls
+improper_style    harmonic
+
+#leave "extra" space for new bonds, angles,...
+read_data         reduce.data                   extra/bond/per/atom 5                   extra/angle/per/atom 15                   extra/dihedral/per/atom 15                   extra/improper/per/atom 25                   extra/special/per/atom 25
+Reading data file ...
+  orthogonal box = (0 0 -2) to (32.58 32.58 15)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  876 atoms
+  reading velocities ...
+  876 velocities
+  scanning bonds ...
+  11 = max bonds/atom
+  scanning angles ...
+  30 = max angles/atom
+  scanning dihedrals ...
+  24 = max dihedrals/atom
+  scanning impropers ...
+  26 = max impropers/atom
+  reading bonds ...
+  864 bonds
+  reading angles ...
+  1488 angles
+  reading dihedrals ...
+  1596 dihedrals
+  reading impropers ...
+  84 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0.5     
+  special bond factors coul:  0        0        0.5     
+     6 = max # of 1-2 neighbors
+     5 = max # of 1-3 neighbors
+     9 = max # of 1-4 neighbors
+    34 = max # of special neighbors
+  special bonds CPU = 0.002 seconds
+  read_data CPU = 0.063 seconds
+include           coeffs
+pair_coeff 	 1 1 0.17 3.0 	 # os os
+pair_coeff 	 1 2 0.18894443627691185 2.979932885150268 	 # os o2
+pair_coeff 	 1 3 0.10592450141492289 3.24037034920393 	 # os ct
+pair_coeff 	 1 4 0.1336038921588739 3.3541019662496847 	 # os c2
+pair_coeff 	 1 5 0.05049752469181039 2.694438717061496 	 # os hc
+pair_coeff 	 1 6 0.18439088914585774 3.3496268448888453 	 # os p
+pair_coeff 	 1 7 0.10183319694480775 3.058480014647799 	 # os f
+pair_coeff 	 1 8 0.009219544457292887 2.9342801502242417 	 # os li+
+pair_coeff 	 2 2 0.21 2.96 	 # o2 o2
+pair_coeff 	 2 3 0.1177285012220915 3.2186953878862163 	 # o2 ct
+pair_coeff 	 2 4 0.14849242404917498 3.331666249791536 	 # o2 c2
+pair_coeff 	 2 5 0.05612486080160912 2.6764155133312166 	 # o2 hc
+pair_coeff 	 2 6 0.20493901531919198 3.327221062688802 	 # o2 p
+pair_coeff 	 2 7 0.11318127053536728 3.038021724741283 	 # o2 f
+pair_coeff 	 2 8 0.010246950765959599 2.914652637965629 	 # o2 li+
+pair_coeff 	 3 3 0.066 3.5 	 # ct ct
+pair_coeff 	 3 4 0.08324662155306965 3.6228441865473595 	 # ct c2
+pair_coeff 	 3 5 0.03146426544510455 2.9103264421710495 	 # ct hc
+pair_coeff 	 3 6 0.11489125293076058 3.6180105030251086 	 # ct p
+pair_coeff 	 3 7 0.06345076831686122 3.303535984365843 	 # ct f
+pair_coeff 	 3 8 0.005744562646538029 3.1693847983480956 	 # ct li+
+pair_coeff 	 4 4 0.105 3.75 	 # c2 c2
+pair_coeff 	 4 5 0.03968626966596886 3.0124740662784135 	 # c2 hc
+pair_coeff 	 4 6 0.14491376746189438 3.744996662214801 	 # c2 p
+pair_coeff 	 4 7 0.0800312438988674 3.4194846102885155 	 # c2 f
+pair_coeff 	 4 8 0.007245688373094719 3.28062494046485 	 # c2 li+
+pair_coeff 	 5 5 0.015 2.42 	 # hc hc
+pair_coeff 	 5 6 0.05477225575051661 3.0084547528590155 	 # hc p
+pair_coeff 	 5 7 0.030248966924508347 2.74696232227528 	 # hc f
+pair_coeff 	 5 8 0.0027386127875258306 2.635412681156407 	 # hc li+
+pair_coeff 	 6 6 0.2 3.74 	 # p p
+pair_coeff 	 6 7 0.11045361017187261 3.414922253873432 	 # p f
+pair_coeff 	 6 8 0.01 3.276247853871865 	 # p li+
+pair_coeff 	 7 7 0.061 3.1181 	 # f f
+pair_coeff 	 7 8 0.00552268050859363 2.991479065612862 	 # f li+
+pair_coeff 	 8 8 0.0005 2.87 	 # li+ li+
+kspace_style      pppm 1.0e-05
+
+reset_timestep    0
+timestep          1
+thermo_style      custom time temp pe
+velocity          all create 300 234562
+
+# Define region where to insert new li atoms
+region            ins block 0.1 32 0.1 32 13 15 units box
+
+######################################
+# Define molecules - templates for reactions
+######################################
+molecule          li     mli.dat
+Read molecule template li:
+  1 molecules
+  0 fragments
+  1 atoms with max type 8
+  0 bonds with max type 0
+  0 angles with max type 0
+  0 dihedrals with max type 0
+  0 impropers with max type 0
+molecule          ecpli  ec_li_coord.template
+Read molecule template ecpli:
+  1 molecules
+  0 fragments
+  11 atoms with max type 8
+  10 bonds with max type 5
+  17 angles with max type 7
+  19 dihedrals with max type 7
+  1 impropers with max type 1
+molecule          oliec  oring_ecli.template
+Read molecule template oliec:
+  1 molecules
+  0 fragments
+  11 atoms with max type 8
+  9 bonds with max type 5
+  13 angles with max type 10
+  11 dihedrals with max type 7
+  1 impropers with max type 1
+
+variable          charge equal charge(all)
+
+##############################################################
+# Loop
+##############################################################
+variable          i loop 10
+label             loopa
+print "##############################################################"
+##############################################################
+print "INFO: Loop iteration $i"
+INFO: Loop iteration 1
+print "##############################################################"
+##############################################################
+
+thermo            10
+thermo_style      custom time temp pe
+
+# run a few steps without reactions
+fix               2 all nvt temp 300 300 100
+print "INFO: Run a few steps without reactions..."
+INFO: Run a few steps without reactions...
+run               10
+PPPM initialization ...
+WARNING: System is not charge neutral, net charge = 3.2 (src/kspace.cpp:327)
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.27507159
+  grid = 18 18 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0031492969
+  estimated relative force accuracy = 9.4840141e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 11875 3888
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 5 5 3
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 35.25 | 35.25 | 35.25 Mbytes
+     Time           Temp          PotEng    
+ 0              300           -863.31348    
+ 10             332.2926      -949.98849    
+
+Nlocal:            876 ave         876 max         876 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7453 ave        7453 max        7453 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         236436 ave      236436 max      236436 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 236436
+Ave neighs/atom = 269.90411
+Ave special neighs/atom = 8.0547945
+Neighbor list builds = 0
+Dangerous builds = 0
+unfix             2
+
+# run a few steps with reactions enabled
+# (let reaction happen only on first step by setting probability 0 beyond that)
+# use loop id as seed
+variable          time0 equal time
+variable          prob equal ((time-${time0})<2.)
+variable          prob equal ((time-10)<2.)
+
+fix 		  rxn all bond/react stabilization yes nvt_grp .03 		  react r1 all 1 0.00 2.3 ecpli oliec openring_ec.map prob v_prob $i stabilize_steps 345 custom_charges no
+fix 		  rxn all bond/react stabilization yes nvt_grp .03 		  react r1 all 1 0.00 2.3 ecpli oliec openring_ec.map prob v_prob 1 stabilize_steps 345 custom_charges no
+dynamic group bond_react_MASTER_group defined
+dynamic group nvt_grp_REACT defined
+
+thermo_style      custom time temp v_charge f_rxn[1]
+
+fix               10 nvt_grp_REACT nvt temp 300 300 100
+
+# insert one new atom 'li' if charge < -0.6
+print "INFO: Run with deposit of additional atoms..."
+INFO: Run with deposit of additional atoms...
+run               400 pre no post no                   every 50 "if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'"
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- fix bond/react: reacter.org doi:10.1016/j.polymer.2017.09.038, doi:10.1021/acs.macromol.0c02012
+
+@Article{Gissinger17,
+ author = {J. R. Gissinger and B. D. Jensen and K. E. Wise},
+ title = {Modeling Chemical Reactions in Classical Molecular Dynamics Simulations},
+ journal = {Polymer},
+ year =    2017,
+ volume =  128,
+ pages =   {211--217}
+}
+
+@Article{Gissinger20,
+ author = {J. R. Gissinger, B. D. Jensen, K. E. Wise},
+ title = {{REACTER}: A Heuristic Method for Reactive Molecular Dynamics},
+ journal = {Macromolecules},
+ year =    2020,
+ volume =  53,
+ number =  22,
+ pages =   {9953--9961}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.27507159
+  grid = 18 18 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0031492969
+  estimated relative force accuracy = 9.4840141e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 11875 3888
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 5 5 3
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix bond/react, occasional, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 37.59 | 37.59 | 37.59 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 10             332.2926       3.2            0            
+ 20             438.80212     -3.2            8            
+ 30             445.55306     -3.2            8            
+ 40             448.90366     -3.2            8            
+ 50             426.14933     -3.2            8            
+ 60             398.78561     -3.2            8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box
+fix dep all deposit 1 0 1 1 region ins near 1.8 mol li units box
+run 10
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28171997
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026328844
+  estimated relative force accuracy = 7.9288531e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 39.46 | 39.46 | 39.46 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 60             398.78561     -3.2            8            
+ 70             425.93741     -2.4            8            
+
+Nlocal:            877 ave         877 max         877 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7498 ave        7498 max        7498 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         236814 ave      236814 max      236814 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 236814
+Ave neighs/atom = 270.02737
+Ave special neighs/atom = 7.8996579
+Neighbor list builds = 1
+Dangerous builds = 0
+     Time           Temp         v_charge       f_rxn[1]   
+ 70             425.93741     -2.4            8            
+ 80             424.02515     -2.4            8            
+ 90             415.94177     -2.4            8            
+ 100            423.52949     -2.4            8            
+ 110            404.45026     -2.4            8            
+ 120            420.17206     -2.4            8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box
+fix dep all deposit 1 0 1 1 region ins near 1.8 mol li units box
+run 10
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172188
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.002648349
+  estimated relative force accuracy = 7.9754243e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 39.46 | 39.46 | 39.46 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 120            419.69241     -2.4            8            
+ 130            422.42176     -1.6            8            
+
+Nlocal:            878 ave         878 max         878 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7481 ave        7481 max        7481 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         237354 ave      237354 max      237354 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 237354
+Ave neighs/atom = 270.33485
+Ave special neighs/atom = 7.8906606
+Neighbor list builds = 1
+Dangerous builds = 0
+     Time           Temp         v_charge       f_rxn[1]   
+ 130            422.42176     -1.6            8            
+ 140            422.10083     -1.6            8            
+ 150            414.1773      -1.6            8            
+ 160            405.92714     -1.6            8            
+ 170            414.32159     -1.6            8            
+ 180            401.24107     -1.6            8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box
+fix dep all deposit 1 0 1 1 region ins near 1.8 mol li units box
+run 10
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172371
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026637989
+  estimated relative force accuracy = 8.0219513e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 39.46 | 39.46 | 39.46 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 180            400.78356     -1.6            8            
+ 190            387.87143     -0.8            8            
+
+Nlocal:            879 ave         879 max         879 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7510 ave        7510 max        7510 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         238156 ave      238156 max      238156 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 238156
+Ave neighs/atom = 270.9397
+Ave special neighs/atom = 7.8816837
+Neighbor list builds = 1
+Dangerous builds = 0
+     Time           Temp         v_charge       f_rxn[1]   
+ 190            387.87143     -0.8            8            
+ 200            387.30881     -0.8            8            
+ 210            388.11329     -0.8            8            
+ 220            378.82753     -0.8            8            
+ 230            393.39862     -0.8            8            
+ 240            380.4688      -0.8            8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box
+fix dep all deposit 1 0 1 1 region ins near 1.8 mol li units box
+run 10
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172548
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026792341
+  estimated relative force accuracy = 8.068434e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 39.46 | 39.46 | 39.46 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 240            380.03547     -0.8            8            
+ 250            390.45347     -3.5527137e-14  8            
+
+Nlocal:            880 ave         880 max         880 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7537 ave        7537 max        7537 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         239250 ave      239250 max      239250 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 239250
+Ave neighs/atom = 271.875
+Ave special neighs/atom = 7.8727273
+Neighbor list builds = 1
+Dangerous builds = 0
+     Time           Temp         v_charge       f_rxn[1]   
+ 250            390.45347     -3.5527137e-14  8            
+ 260            382.51311     -3.5527137e-14  8            
+ 270            366.09854     -3.5527137e-14  8            
+ 280            366.22965     -3.5527137e-14  8            
+ 290            378.34583     -3.5527137e-14  8            
+ 300            370.66881     -3.5527137e-14  8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+     Time           Temp         v_charge       f_rxn[1]   
+ 300            370.66881     -3.5527137e-14  8            
+ 310            364.31597     -3.5527137e-14  8            
+ 320            345.73612     -3.5527137e-14  8            
+ 330            358.05669     -3.5527137e-14  8            
+ 340            356.58237     -3.5527137e-14  8            
+ 350            350.14733     -3.5527137e-14  8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+     Time           Temp         v_charge       f_rxn[1]   
+ 350            350.14733     -3.5527137e-14  8            
+ 360            354.98713     -3.5527137e-14  8            
+ 370            342.74114     -3.5527137e-14  8            
+ 380            337.44787     -3.5527137e-14  8            
+ 390            326.02963     -3.5527137e-14  8            
+ 400            330.9979      -3.5527137e-14  8            
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+     Time           Temp         v_charge       f_rxn[1]   
+ 400            330.9979      -3.5527137e-14  8            
+ 410            311.15493     -3.5527137e-14  8            
+ 420            314.07209     -3.5527137e-14  8            
+ 430            317.90381     -3.5527137e-14  8            
+ 440            312.84368     -3.5527137e-14  8            
+ 450            303.08003     -3.5527137e-14  8            
+
+Nlocal:            880 ave         880 max         880 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7434 ave        7434 max        7434 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         241392 ave      241392 max      241392 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 241392
+Ave neighs/atom = 274.30909
+Ave special neighs/atom = 7.8727273
+Neighbor list builds = 10
+Dangerous builds = 0
+if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'
+
+reset_mol_ids     all offset 0 single yes
+
+WARNING: 'reset_mol_ids' has been renamed to 'reset_atoms mol'. Please update your input.
+
+reset_atoms mol all offset 0 single yes
+Resetting molecule IDs ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172717
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026946546
+  estimated relative force accuracy = 8.1148723e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+  number of new molecule IDs = 100
+  reset_atoms mol CPU = 0.003 seconds
+
+variable          time0 delete
+unfix             10
+unfix             rxn
+
+#jump to next loop iteration
+next              i
+jump              run.in loopa
+print "##############################################################"
+##############################################################
+print "INFO: Loop iteration $i"
+INFO: Loop iteration 2
+print "##############################################################"
+##############################################################
+
+thermo            10
+thermo_style      custom time temp pe
+
+# run a few steps without reactions
+fix               2 all nvt temp 300 300 100
+print "INFO: Run a few steps without reactions..."
+INFO: Run a few steps without reactions...
+run               10
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172717
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026946546
+  estimated relative force accuracy = 8.1148723e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 5 5 3
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 37.38 | 37.38 | 37.38 Mbytes
+     Time           Temp          PotEng    
+ 450            302.73523     -1983.8017    
+ 460            307.54638     -1995.8795    
+
+Nlocal:            880 ave         880 max         880 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           7427 ave        7427 max        7427 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:         241425 ave      241425 max      241425 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 241425
+Ave neighs/atom = 274.34659
+Ave special neighs/atom = 7.8727273
+Neighbor list builds = 0
+Dangerous builds = 0
+unfix             2
+
+# run a few steps with reactions enabled
+# (let reaction happen only on first step by setting probability 0 beyond that)
+# use loop id as seed
+variable          time0 equal time
+variable          prob equal ((time-${time0})<2.)
+variable          prob equal ((time-460)<2.)
+
+fix 		  rxn all bond/react stabilization yes nvt_grp .03 		  react r1 all 1 0.00 2.3 ecpli oliec openring_ec.map prob v_prob $i stabilize_steps 345 custom_charges no
+fix 		  rxn all bond/react stabilization yes nvt_grp .03 		  react r1 all 1 0.00 2.3 ecpli oliec openring_ec.map prob v_prob 2 stabilize_steps 345 custom_charges no
+dynamic group bond_react_MASTER_group defined
+dynamic group nvt_grp_REACT defined
+
+thermo_style      custom time temp v_charge f_rxn[1]
+
+fix               10 nvt_grp_REACT nvt temp 300 300 100
+
+# insert one new atom 'li' if charge < -0.6
+print "INFO: Run with deposit of additional atoms..."
+INFO: Run with deposit of additional atoms...
+run               400 pre no post no                   every 50 "if '${charge} < -0.6' then                   'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'"
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (src/kspace.cpp:342)
+  G vector (1/distance) = 0.28172717
+  grid = 20 20 12
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0026946546
+  estimated relative force accuracy = 8.1148723e-06
+  using double precision FFTW3
+  3d grid and FFT values/proc = 13851 4800
+Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 14
+  ghost atom cutoff = 14
+  binsize = 7, bins = 5 5 3
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/cut/coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+  (2) fix bond/react, occasional, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 37.75 | 37.75 | 37.75 Mbytes
+     Time           Temp         v_charge       f_rxn[1]   
+ 460            307.54638     -7.6605389e-15  0            
+ 470            317.2085      -0.870183       1            
+ 480            322.89764     -0.870183       1            
+ 490            318.85719     -0.870183       1            
+ 500            325.22989     -0.870183       1            
+ 510            324.85092     -0.870183       1            

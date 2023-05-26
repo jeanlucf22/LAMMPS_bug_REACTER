@@ -1,0 +1,88 @@
+units             real
+atom_style        full
+boundary          p p p
+timer off
+
+######################################
+# using OPLS force-field
+######################################
+special_bonds     lj/coul 0 0 0.5
+pair_style        lj/cut/coul/long 12.0 10.0
+bond_style        harmonic
+angle_style       harmonic
+dihedral_style    opls
+improper_style    harmonic
+
+#leave "extra" space for new bonds, angles,...
+read_data         reduce.data &
+                  extra/bond/per/atom 5 &
+                  extra/angle/per/atom 15 &
+                  extra/dihedral/per/atom 15 &
+                  extra/improper/per/atom 25 &
+                  extra/special/per/atom 25
+include           coeffs
+kspace_style      pppm 1.0e-05
+
+reset_timestep    0
+timestep          1
+thermo_style      custom time temp pe
+velocity          all create 300 234562 
+
+# Define region where to insert new li atoms
+region            ins block 0.1 32 0.1 32 13 15 units box
+
+######################################
+# Define molecules - templates for reactions 
+######################################
+molecule          li     mli.dat
+molecule          ecpli  ec_li_coord.template
+molecule          oliec  oring_ecli.template
+
+variable          charge equal charge(all)
+
+##############################################################
+# Loop
+##############################################################
+variable          i loop 10
+label             loopa
+print "##############################################################"
+print "INFO: Loop iteration $i"
+print "##############################################################"
+
+thermo            10
+thermo_style      custom time temp pe
+
+# run a few steps without reactions
+fix               2 all nvt temp 300 300 100
+print "INFO: Run a few steps without reactions..."
+run               10
+unfix             2
+
+# run a few steps with reactions enabled
+# (let reaction happen only on first step by setting probability 0 beyond that)
+# use loop id as seed
+variable          time0 equal time
+variable          prob equal ((time-${time0})<2.)
+
+fix 		  rxn all bond/react stabilization yes nvt_grp .03 &
+		  react r1 all 1 0.00 2.3 ecpli oliec openring_ec.map prob v_prob $i stabilize_steps 345 custom_charges no
+
+thermo_style      custom time temp v_charge f_rxn[1]
+
+fix               10 nvt_grp_REACT nvt temp 300 300 100
+
+# insert one new atom 'li' if charge < -0.6
+print "INFO: Run with deposit of additional atoms..."
+run               400 pre no post no &
+                  every 50 "if '${charge} < -0.6' then &
+                  'fix dep all deposit 1 0 1 $i region ins near 1.8 mol li units box' 'run 10'"
+
+reset_mol_ids     all offset 0 single yes
+
+variable          time0 delete
+unfix             10
+unfix             rxn
+
+#jump to next loop iteration
+next              i
+jump              run.in loopa
